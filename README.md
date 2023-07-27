@@ -3,7 +3,7 @@ This is a website which focuses on connections of an API with the Streamlit Inte
 
 Instructions to run:
 Download the code and in the same directory create a .env File 
-# add this line in the file #
+<!-- add this line in the file -->
 API_KEY = "Your-API-Key"
 
 
