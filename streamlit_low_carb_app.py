@@ -1,63 +1,40 @@
-import streamlit as st
 import os
+import streamlit as st
 import requests
 
+class LowCarbRecipeConnection:
+    def __init__(self, api_key):
+        self.url = "https://low-carb-recipes.p.rapidapi.com"
+        self.headers = {
+            "X-RapidAPI-Key": api_key,
+            "X-RapidAPI-Host": "low-carb-recipes.p.rapidapi.com"
+        }
 
-def get_api_key():
-    return os.getenv("API_KEY")
+    def get_random_recipe(self):
+        endpoint = "/random"
+        response = requests.get(self.url + endpoint, headers=self.headers)
+        return response.json() if response.status_code == 200 else None
 
-
-def get_random_low_carb_recipe():
-    url = "https://low-carb-recipes.p.rapidapi.com/random"
-    headers = {
-        "X-RapidAPI-Key": get_api_key(),
-        "X-RapidAPI-Host": "low-carb-recipes.p.rapidapi.com"
-    }
-    tags = [
-        "15-minute-meals", "beef-free", "breakfast", "chicken-free",
-        "dairy-free", "desserts", "eggs", "fish-free", "gluten-free", "keto"
-    ]
-    params = {"tags": ",".join(tags)}
-
-    response = requests.get(url, headers=headers, params=params)
-
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return None
-    
-def get_low_carb_recipe_by_id():
-    url = "https://low-carb-recipes.p.rapidapi.com/recipes/2807982c-986a-4def-9e3a-153a3066af7a"
-    headers = {
-        "X-RapidAPI-Key": "d55227a8f6mshcc8497c44392a08p15d4f6jsn6467ef680ddc",
-        "X-RapidAPI-Host": "low-carb-recipes.p.rapidapi.com"
-    }
-    tags = [
-        "15-minute-meals", "beef-free", "breakfast", "chicken-free",
-        "dairy-free", "desserts", "eggs", "fish-free", "gluten-free", "keto"
-    ]
-    params = {"tags": ",".join(tags)}
-
-    response = requests.get(url, headers=headers, params=params)
-
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return None
+    def get_recipe_by_id(self, recipe_id):
+        endpoint = f"/recipes/{recipe_id}"
+        response = requests.get(self.url + endpoint, headers=self.headers)
+        return response.json() if response.status_code == 200 else None
 
 def main():
-    
     st.sidebar.title('Low Carb Recipe')
 
     # Add widgets in the sidebar
     option = st.sidebar.selectbox('Select Option', ['Random', 'Recommended'])
-    
 
     st.title("Low Carb Recipe Randomizer")
 
-    
+    # Create the connection object and get the API key from GitHub Secrets
+    api_key = os.getenv("API_KEY")
+    connection = LowCarbRecipeConnection(api_key)
+
     if option == 'Random':
-        recipe_data = get_random_low_carb_recipe()
+        # Get a random recipe
+        recipe_data = connection.get_random_recipe()
         if recipe_data:
             st.subheader("Recipe Name:")
             st.write(recipe_data["name"])
@@ -67,31 +44,40 @@ def main():
                 name = ingredient.get("name", "")
                 serving_size = ingredient["servingSize"].get("desc", "") if "servingSize" in ingredient else ""
                 st.write(f"- {name} ({serving_size})")
-            
-            st.subheader("Recipe Step:")
-            i = 1
-            for recipesteps in recipe_data["steps"]:
-                st.write(f'Step{i} : {recipesteps}')
-                i += 1 
-                
-    elif option == 'Recommended':
-        recipe_data = get_low_carb_recipe_by_id()
-        if recipe_data and option[1] :
-            st.subheader("Recipe Name:")
-            st.write(recipe_data["name"])
 
-            st.subheader("Ingredients:")
-            for ingredient in recipe_data["ingredients"]:
-                st.write(f"- {ingredient['name']} ({ingredient['servingSize']['desc']})")
-            
             st.subheader("Recipe Step:")
             i = 1
-            for recipesteps in recipe_data["steps"]:
-                st.write(f'Step{i} : {recipesteps}')
-                i += 1 
+            for recipestep in recipe_data["steps"]:
+                st.write(f'Step{i}: {recipestep}')
+                i += 1
+
+    elif option == 'Recommended':
+        # Get the ID of the previously fetched random recipe
+        recommended_recipe_id = "2807982c-986a-4def-9e3a-153a3066af7a"
+
+        if recommended_recipe_id:
+            # Fetch the recommended recipe by ID
+            recipe_data = connection.get_recipe_by_id(recommended_recipe_id)
+            if recipe_data:
+                st.subheader("Recipe Name:")
+                st.write(recipe_data["name"])
+
+                st.subheader("Ingredients:")
+                for ingredient in recipe_data["ingredients"]:
+                    name = ingredient.get("name", "")
+                    serving_size = ingredient["servingSize"].get("desc", "") if "servingSize" in ingredient else ""
+                    st.write(f"- {name} ({serving_size})")
+
+                st.subheader("Recipe Step:")
+                i = 1
+                for recipestep in recipe_data["steps"]:
+                    st.write(f'Step{i}: {recipestep}')
+                    i += 1
+        else:
+            st.error("No recommended recipe found. Please try the 'Random' option first.")
+
     else:
-        st.error("Failed to retrieve a random low-carb recipe. Please try again later.")
-    
+        st.error("Invalid option selected. Please choose 'Random' or 'Recommended'.")
 
 if __name__ == "__main__":
     main()
