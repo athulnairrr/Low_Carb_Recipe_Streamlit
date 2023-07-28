@@ -2,13 +2,13 @@
 This is a website which focuses on connections of an API with the Streamlit Interface
 
 Instructions to run: Download the code and in the same directory create a .env File 
+API_KEY = "Your-API-Key"
 
-<!-- add this line in the file -->
+add this line to .py file
+
 from dotenv import load_dotenv
 
 load_dotenv()
-
-API_KEY = "Your-API-Key"
 
 
 ![Screenshot 2023-07-28 042838](https://github.com/athulnairrr/Low_Carb_Recipe_Streamlit/assets/132225542/ee7835e1-02e2-49d2-8b59-987ebf35d40b)
