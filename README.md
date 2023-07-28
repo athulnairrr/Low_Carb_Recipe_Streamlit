@@ -4,6 +4,11 @@ This is a website which focuses on connections of an API with the Streamlit Inte
 Instructions to run: Download the code and in the same directory create a .env File 
 
 <!-- add this line in the file -->
+from dotenv import load_dotenv
+
+# Load environment variables from the .env file
+load_dotenv()
+
 API_KEY = "Your-API-Key"
 
 
