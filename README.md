@@ -1,10 +1,12 @@
 # Low_Carb_Recipe_Streamlit
 This is a website which focuses on connections of an API with the Streamlit Interface
 
-Instructions to run: Download the code and in the same directory create a .env File 
+## Instructions to run: 
+Download the code and in the same directory create a ".env" File,
+Inside env File Add this :
 API_KEY = "Your-API-Key"
 
-add this line to .py file
+Then add the below lines to your .py file
 
 from dotenv import load_dotenv
 
